@@ -16,3 +16,15 @@ export interface Story {
   created_at?: string;
   updated_at?: string;
 }
+
+export interface Bookmark {
+  id: string;
+  user_id: string;
+  story_id: string;
+  created_at: string;
+}
+
+export interface User {
+  id: string;
+  email: string;
+}
