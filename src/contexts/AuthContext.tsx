@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { User } from '@/lib/supabase';
@@ -9,6 +8,7 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -22,13 +22,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email,
+          user_metadata: session.user.user_metadata
+        });
+      } else {
+        setUser(null);
+      }
       setLoading(false);
     });
 
     // Listen for changes on auth state 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email,
+          user_metadata: session.user.user_metadata
+        });
+      } else {
+        setUser(null);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -68,6 +84,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error signing in with Google",
+        description: error.message,
+      });
+    }
+  };
+
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -86,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signIn, signUp, signInWithGoogle, signOut }}>
       {children}
     </AuthContext.Provider>
   );

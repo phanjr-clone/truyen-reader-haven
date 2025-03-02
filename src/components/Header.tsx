@@ -1,10 +1,19 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpenText, ScrollText, Settings, LogOut } from 'lucide-react';
+import { BookOpenText, ScrollText, Settings, LogOut, User } from 'lucide-react';
 import { Button } from './ui/button';
 import { LoginDialog } from './auth/LoginDialog';
 import { useAuth } from '@/contexts/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -17,27 +26,48 @@ const Header = () => {
           <span className="text-xl font-semibold">TruyenHaven</span>
         </Link>
         <nav className="ml-auto flex items-center space-x-4">
-          <Link to="/latest" className="text-sm font-medium hover:text-primary transition-colors">
-            Latest
-          </Link>
           <Link to="/popular" className="text-sm font-medium hover:text-primary transition-colors">
             Popular
           </Link>
           {user && (
             <>
-              <Link to="/admin">
-                <Button variant="ghost" size="icon">
-                  <Settings className="h-5 w-5" />
-                </Button>
-              </Link>
               <Link to="/bookmarks">
                 <Button variant="ghost" size="icon">
                   <ScrollText className="h-5 w-5" />
                 </Button>
               </Link>
-              <Button variant="ghost" size="icon" onClick={() => signOut()}>
-                <LogOut className="h-5 w-5" />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.user_metadata?.avatar_url} />
+                      <AvatarFallback>
+                        {user.email?.[0]?.toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
+                  {user && (
+                    <DropdownMenuItem>
+                      <Link to="/admin" className="flex items-center">
+                        <Settings className="mr-2 h-4 w-4" />
+                        Admin
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           )}
           {!user && <LoginDialog />}

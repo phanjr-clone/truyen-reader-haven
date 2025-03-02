@@ -8,6 +8,9 @@ import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import StoryDetail from "./pages/StoryDetail";
+import Bookmarks from "./pages/Bookmarks";
+import Popular from "./pages/Popular";
 
 const queryClient = new QueryClient();
 
@@ -20,8 +23,10 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/story/:id" element={<StoryDetail />} />
+            <Route path="/popular" element={<Popular />} />
+            <Route path="/bookmarks" element={<Bookmarks />} />
             <Route path="/admin" element={<Admin />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

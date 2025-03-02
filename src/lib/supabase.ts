@@ -15,6 +15,7 @@ export interface Story {
   status: 'draft' | 'published';
   created_at?: string;
   updated_at?: string;
+  views?: number;
 }
 
 export interface Bookmark {
@@ -26,5 +27,42 @@ export interface Bookmark {
 
 export interface User {
   id: string;
-  email: string;
+  email?: string;
+  user_metadata?: {
+    avatar_url?: string;
+    email?: string;
+    name?: string;
+  };
 }
+
+export const storyService = {
+  async getPopularStories() {
+    const { data, error } = await supabase
+      .from('stories')
+      .select('*')
+      .order('views', { ascending: false })
+      .limit(10);
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async getStoryById(id: string) {
+    const { data, error } = await supabase
+      .from('stories')
+      .select('*')
+      .eq('id', id)
+      .single();
+    
+    if (error) throw error;
+    
+    // Increment views
+    await supabase
+      .from('stories')
+      .update({ views: (data.views || 0) + 1 })
+      .eq('id', id);
+    
+    return data;
+  }
+};
+
