@@ -2,7 +2,6 @@
 import React from 'react';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -21,17 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
 import type { Story } from '@/lib/supabase';
-
-const formSchema = z.object({
-  title: z.string().min(2).max(100),
-  author: z.string().min(2).max(100),
-  content: z.string().min(10),
-  type: z.enum(['Romance', 'Drama', 'Youth', 'Life', 'Adventure', 'Fantasy', 'Mystery'])
-});
+import { storyFormSchema, type StoryFormValues } from './schemas/story-schema';
+import { useStoryImage } from './hooks/useStoryImage';
+import { useStorySubmit } from './hooks/useStorySubmit';
 
 interface StoryFormProps {
   story?: Story;
@@ -39,13 +31,8 @@ interface StoryFormProps {
 }
 
 export function StoryForm({ story, onSuccess }: StoryFormProps) {
-  const queryClient = useQueryClient();
-  const isEditing = !!story;
-  const [coverFile, setCoverFile] = React.useState<File | null>(null);
-  const [coverPreview, setCoverPreview] = React.useState<string>(story?.cover_url || '');
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<StoryFormValues>({
+    resolver: zodResolver(storyFormSchema),
     defaultValues: {
       title: story?.title || "",
       author: story?.author || "",
@@ -54,66 +41,21 @@ export function StoryForm({ story, onSuccess }: StoryFormProps) {
     },
   });
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setCoverFile(file);
-      const preview = URL.createObjectURL(file);
-      setCoverPreview(preview);
-    }
-  };
+  const { coverFile, coverPreview, setCoverFile, setCoverPreview, handleImageChange } = 
+    useStoryImage(story?.cover_url);
 
-  const mutation = useMutation({
-    mutationFn: async (values: z.infer<typeof formSchema>) => {
-      let cover_url = story?.cover_url;
-
-      if (coverFile) {
-        const fileExt = coverFile.name.split('.').pop();
-        const filePath = `${crypto.randomUUID()}.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('story-covers')
-          .upload(filePath, coverFile);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('story-covers')
-          .getPublicUrl(filePath);
-
-        cover_url = publicUrl;
-      }
-
-      if (isEditing) {
-        const { error } = await supabase
-          .from('stories')
-          .update({ ...values, cover_url })
-          .eq('id', story.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('stories')
-          .insert([{ ...values, cover_url }]);
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stories'] });
-      toast.success(isEditing ? 'Story updated successfully' : 'Story created successfully');
-      onSuccess?.();
-      if (!isEditing) {
-        form.reset();
-        setCoverFile(null);
-        setCoverPreview('');
-      }
-    },
-    onError: (error) => {
-      toast.error(`Failed to ${isEditing ? 'update' : 'create'} story: ${error.message}`);
+  const mutation = useStorySubmit({
+    story,
+    onSuccess,
+    onReset: () => {
+      form.reset();
+      setCoverFile(null);
+      setCoverPreview('');
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    mutation.mutate(values);
+  function onSubmit(values: StoryFormValues) {
+    mutation.mutate({ ...values, coverFile });
   }
 
   return (
@@ -207,7 +149,7 @@ export function StoryForm({ story, onSuccess }: StoryFormProps) {
           )}
         </div>
         <Button type="submit" disabled={mutation.isPending}>
-          {isEditing ? 'Update Story' : 'Create Story'}
+          {story ? 'Update Story' : 'Create Story'}
         </Button>
       </form>
     </Form>
