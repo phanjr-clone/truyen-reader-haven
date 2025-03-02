@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 // These are public keys - it's safe to expose them
@@ -12,10 +11,11 @@ export interface Story {
   title: string;
   author: string;
   content?: string;
-  status: 'draft' | 'published';
+  cover_url?: string;
+  type: 'Romance' | 'Drama' | 'Youth' | 'Life' | 'Adventure' | 'Fantasy' | 'Mystery';
+  views: number;
   created_at?: string;
   updated_at?: string;
-  views?: number;
 }
 
 export interface Bookmark {
@@ -63,6 +63,26 @@ export const storyService = {
       .eq('id', id);
     
     return data;
+  },
+
+  async getAllStories() {
+    const { data, error } = await supabase
+      .from('stories')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async getStoriesByType(type: Story['type']) {
+    const { data, error } = await supabase
+      .from('stories')
+      .select('*')
+      .eq('type', type)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data;
   }
 };
-

@@ -9,7 +9,71 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      bookmarks: {
+        Row: {
+          created_at: string | null
+          id: string
+          story_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          story_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          story_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookmarks_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stories: {
+        Row: {
+          author: string
+          content: string | null
+          cover_url: string | null
+          created_at: string | null
+          id: string
+          title: string
+          type: Database["public"]["Enums"]["story_type"]
+          updated_at: string | null
+          views: number | null
+        }
+        Insert: {
+          author: string
+          content?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          id?: string
+          title: string
+          type: Database["public"]["Enums"]["story_type"]
+          updated_at?: string | null
+          views?: number | null
+        }
+        Update: {
+          author?: string
+          content?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          id?: string
+          title?: string
+          type?: Database["public"]["Enums"]["story_type"]
+          updated_at?: string | null
+          views?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +82,14 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      story_type:
+        | "Romance"
+        | "Drama"
+        | "Youth"
+        | "Life"
+        | "Adventure"
+        | "Fantasy"
+        | "Mystery"
     }
     CompositeTypes: {
       [_ in never]: never
