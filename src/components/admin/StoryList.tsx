@@ -66,7 +66,7 @@ const StoryList = () => {
           <TableRow>
             <TableHead>Title</TableHead>
             <TableHead>Author</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead>Type</TableHead>
             <TableHead>Last Updated</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -77,8 +77,8 @@ const StoryList = () => {
               <TableCell>{story.title}</TableCell>
               <TableCell>{story.author}</TableCell>
               <TableCell>
-                <span className={`capitalize ${story.status === 'published' ? 'text-green-600' : 'text-amber-600'}`}>
-                  {story.status}
+                <span className="capitalize text-primary">
+                  {story.type}
                 </span>
               </TableCell>
               <TableCell>{new Date(story.updated_at || story.created_at).toLocaleDateString()}</TableCell>

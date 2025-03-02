@@ -5,6 +5,9 @@ import { BookOpenText, ScrollText, Settings, LogOut, User } from 'lucide-react';
 import { Button } from './ui/button';
 import { LoginDialog } from './auth/LoginDialog';
 import { useAuth } from '@/contexts/AuthContext';
+import { ThemeToggle } from './ThemeToggle';
+import { LanguageToggle } from './LanguageToggle';
+import { useI18n } from '@/i18n/i18n';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Header = () => {
   const { user, signOut } = useAuth();
+  const { t } = useI18n();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -27,8 +31,10 @@ const Header = () => {
         </Link>
         <nav className="ml-auto flex items-center space-x-4">
           <Link to="/popular" className="text-sm font-medium hover:text-primary transition-colors">
-            Popular
+            {t('nav.popular')}
           </Link>
+          <ThemeToggle />
+          <LanguageToggle />
           {user && (
             <>
               <Link to="/bookmarks">
@@ -75,6 +81,6 @@ const Header = () => {
       </div>
     </header>
   );
-};
+}
 
 export default Header;
