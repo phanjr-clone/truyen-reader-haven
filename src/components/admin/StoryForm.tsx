@@ -30,7 +30,7 @@ const formSchema = z.object({
   title: z.string().min(2).max(100),
   author: z.string().min(2).max(100),
   content: z.string().min(10),
-  status: z.enum(["draft", "published"]),
+  type: z.enum(['Romance', 'Drama', 'Youth', 'Life', 'Adventure', 'Fantasy', 'Mystery'])
 });
 
 interface StoryFormProps {
@@ -41,6 +41,8 @@ interface StoryFormProps {
 export function StoryForm({ story, onSuccess }: StoryFormProps) {
   const queryClient = useQueryClient();
   const isEditing = !!story;
+  const [coverFile, setCoverFile] = React.useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = React.useState<string>(story?.cover_url || '');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,22 +50,50 @@ export function StoryForm({ story, onSuccess }: StoryFormProps) {
       title: story?.title || "",
       author: story?.author || "",
       content: story?.content || "",
-      status: story?.status || "draft",
+      type: story?.type || "Romance"
     },
   });
 
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setCoverFile(file);
+      const preview = URL.createObjectURL(file);
+      setCoverPreview(preview);
+    }
+  };
+
   const mutation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
+      let cover_url = story?.cover_url;
+
+      if (coverFile) {
+        const fileExt = coverFile.name.split('.').pop();
+        const filePath = `${crypto.randomUUID()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('story-covers')
+          .upload(filePath, coverFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('story-covers')
+          .getPublicUrl(filePath);
+
+        cover_url = publicUrl;
+      }
+
       if (isEditing) {
         const { error } = await supabase
           .from('stories')
-          .update(values)
+          .update({ ...values, cover_url })
           .eq('id', story.id);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('stories')
-          .insert([values]);
+          .insert([{ ...values, cover_url }]);
         if (error) throw error;
       }
     },
@@ -73,6 +103,8 @@ export function StoryForm({ story, onSuccess }: StoryFormProps) {
       onSuccess?.();
       if (!isEditing) {
         form.reset();
+        setCoverFile(null);
+        setCoverPreview('');
       }
     },
     onError: (error) => {
@@ -115,6 +147,32 @@ export function StoryForm({ story, onSuccess }: StoryFormProps) {
         />
         <FormField
           control={form.control}
+          name="type"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Type</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Romance">Romance</SelectItem>
+                  <SelectItem value="Drama">Drama</SelectItem>
+                  <SelectItem value="Youth">Youth</SelectItem>
+                  <SelectItem value="Life">Life</SelectItem>
+                  <SelectItem value="Adventure">Adventure</SelectItem>
+                  <SelectItem value="Fantasy">Fantasy</SelectItem>
+                  <SelectItem value="Mystery">Mystery</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="content"
           render={({ field }) => (
             <FormItem>
@@ -130,27 +188,24 @@ export function StoryForm({ story, onSuccess }: StoryFormProps) {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="status"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a status" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="published">Published</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
+        <div className="space-y-2">
+          <FormLabel>Cover Image</FormLabel>
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="cursor-pointer"
+          />
+          {coverPreview && (
+            <div className="mt-2">
+              <img
+                src={coverPreview}
+                alt="Cover preview"
+                className="max-w-[200px] rounded-md"
+              />
+            </div>
           )}
-        />
+        </div>
         <Button type="submit" disabled={mutation.isPending}>
           {isEditing ? 'Update Story' : 'Create Story'}
         </Button>

@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 
 // These are public keys - it's safe to expose them
@@ -86,3 +87,4 @@ export const storyService = {
     return data;
   }
 };
+
