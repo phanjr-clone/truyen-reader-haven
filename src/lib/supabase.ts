@@ -2,8 +2,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // These are public keys - it's safe to expose them
-const supabaseUrl = 'https://YOUR_PROJECT_URL.supabase.co';
-const supabaseAnonKey = 'YOUR_ANON_KEY';
+const supabaseUrl = 'https://ifqpksmmxhirumjavejr.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmcXBrc21teGhpcnVtamF2ZWpyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg1NjY4NTQsImV4cCI6MjA1NDE0Mjg1NH0.6cr3NwaGy62Ipl4mJLe8zz95dKNqEEvDYeeBEZ7qRck';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
