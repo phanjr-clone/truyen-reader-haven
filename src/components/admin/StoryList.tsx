@@ -14,6 +14,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import type { Story } from '@/lib/supabase';
+import { StoryDialog } from './StoryDialog';
 
 const StoryList = () => {
   const queryClient = useQueryClient();
@@ -33,6 +34,15 @@ const StoryList = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
+      // First delete associated chapters if they exist
+      const { error: chaptersError } = await supabase
+        .from('chapters')
+        .delete()
+        .eq('story_id', id);
+      
+      if (chaptersError) throw chaptersError;
+
+      // Then delete the story
       const { error } = await supabase
         .from('stories')
         .delete()
@@ -84,9 +94,14 @@ const StoryList = () => {
               <TableCell>{new Date(story.updated_at || story.created_at).toLocaleDateString()}</TableCell>
               <TableCell>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="icon">
-                    <Edit className="h-4 w-4" />
-                  </Button>
+                  <StoryDialog
+                    story={story}
+                    trigger={
+                      <Button variant="outline" size="icon">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    }
+                  />
                   <Button 
                     variant="outline" 
                     size="icon" 

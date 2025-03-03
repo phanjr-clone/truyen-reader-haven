@@ -29,10 +29,11 @@ import { Separator } from "@/components/ui/separator";
 
 interface StoryFormProps {
   story?: Story;
+  initialChapters?: any[];
   onSuccess?: () => void;
 }
 
-export function StoryForm({ story, onSuccess }: StoryFormProps) {
+export function StoryForm({ story, initialChapters = [], onSuccess }: StoryFormProps) {
   const form = useForm<StoryFormValues>({
     resolver: zodResolver(storyFormSchema),
     defaultValues: {
@@ -40,7 +41,11 @@ export function StoryForm({ story, onSuccess }: StoryFormProps) {
       author: story?.author || "",
       content: story?.content || "",
       type: story?.type || "Romance",
-      chapters: [],
+      chapters: initialChapters.map(chapter => ({
+        title: chapter.title,
+        content: chapter.content,
+        order: chapter.order,
+      })) || [],
     },
   });
 

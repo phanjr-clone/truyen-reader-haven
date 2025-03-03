@@ -42,9 +42,16 @@ export function useStorySubmit({ story, onSuccess, onReset }: UseStorySubmitProp
       if (isEditing) {
         const { error } = await supabase
           .from('stories')
-          .update({ ...storyData, cover_url })
+          .update({ ...storyData, cover_url, updated_at: new Date().toISOString() })
           .eq('id', story.id);
         if (error) throw error;
+
+        // Delete existing chapters
+        const { error: deleteError } = await supabase
+          .from('chapters')
+          .delete()
+          .eq('story_id', story.id);
+        if (deleteError) throw deleteError;
       } else {
         const { data, error } = await supabase
           .from('stories')
@@ -71,6 +78,7 @@ export function useStorySubmit({ story, onSuccess, onReset }: UseStorySubmitProp
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['stories'] });
+      queryClient.invalidateQueries({ queryKey: ['chapters'] });
       toast.success(isEditing ? 'Story updated successfully' : 'Story created successfully');
       onSuccess?.();
       if (!isEditing) {
@@ -82,4 +90,3 @@ export function useStorySubmit({ story, onSuccess, onReset }: UseStorySubmitProp
     },
   });
 }
-
