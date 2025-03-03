@@ -1,8 +1,7 @@
+
 import React from 'react';
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -20,12 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Story } from '@/lib/supabase';
-import { storyFormSchema, type StoryFormValues } from './schemas/story-schema';
-import { useStoryImage } from './hooks/useStoryImage';
-import { useStorySubmit } from './hooks/useStorySubmit';
-import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import type { Story } from '@/lib/supabase';
+import { useStoryForm } from './hooks/useStoryForm';
+import { ChapterForm } from './forms/ChapterForm';
 
 interface StoryFormProps {
   story?: Story;
@@ -34,42 +31,16 @@ interface StoryFormProps {
 }
 
 export function StoryForm({ story, initialChapters = [], onSuccess }: StoryFormProps) {
-  const form = useForm<StoryFormValues>({
-    resolver: zodResolver(storyFormSchema),
-    defaultValues: {
-      title: story?.title || "",
-      author: story?.author || "",
-      content: story?.content || "",
-      type: story?.type || "Romance",
-      chapters: initialChapters.map(chapter => ({
-        title: chapter.title,
-        content: chapter.content,
-        order: chapter.order,
-      })) || [],
-    },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "chapters",
-  });
-
-  const { coverFile, coverPreview, setCoverFile, setCoverPreview, handleImageChange } = 
-    useStoryImage(story?.cover_url);
-
-  const mutation = useStorySubmit({
-    story,
-    onSuccess,
-    onReset: () => {
-      form.reset();
-      setCoverFile(null);
-      setCoverPreview('');
-    },
-  });
-
-  function onSubmit(values: StoryFormValues) {
-    mutation.mutate({ ...values, coverFile });
-  }
+  const {
+    form,
+    fields,
+    append,
+    remove,
+    coverPreview,
+    handleImageChange,
+    onSubmit,
+    mutation
+  } = useStoryForm({ story, initialChapters, onSuccess });
 
   return (
     <Form {...form}>
@@ -87,6 +58,7 @@ export function StoryForm({ story, initialChapters = [], onSuccess }: StoryFormP
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="author"
@@ -100,6 +72,7 @@ export function StoryForm({ story, initialChapters = [], onSuccess }: StoryFormP
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="type"
@@ -126,6 +99,7 @@ export function StoryForm({ story, initialChapters = [], onSuccess }: StoryFormP
             </FormItem>
           )}
         />
+
         <div className="space-y-2">
           <FormLabel>Cover Image</FormLabel>
           <Input
@@ -144,7 +118,9 @@ export function StoryForm({ story, initialChapters = [], onSuccess }: StoryFormP
             </div>
           )}
         </div>
+
         <Separator />
+
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <FormLabel>Chapters</FormLabel>
@@ -161,66 +137,12 @@ export function StoryForm({ story, initialChapters = [], onSuccess }: StoryFormP
           </div>
 
           {fields.map((field, index) => (
-            <Card key={field.id}>
-              <CardContent className="pt-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-medium">Chapter {index + 1}</h4>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => remove(index)}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name={`chapters.${index}.title`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Chapter Title</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Chapter title" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name={`chapters.${index}.content`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Chapter Content</FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Write your chapter content here..." 
-                          className="min-h-[200px]"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name={`chapters.${index}.order`}
-                  render={({ field }) => (
-                    <FormItem className="hidden">
-                      <FormControl>
-                        <Input type="hidden" {...field} value={index} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
+            <ChapterForm
+              key={field.id}
+              index={index}
+              form={form}
+              onRemove={() => remove(index)}
+            />
           ))}
 
           {fields.length === 0 && (
@@ -243,6 +165,7 @@ export function StoryForm({ story, initialChapters = [], onSuccess }: StoryFormP
             />
           )}
         </div>
+
         <Button type="submit" disabled={mutation.isPending}>
           {story ? 'Update Story' : 'Create Story'}
         </Button>
