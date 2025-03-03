@@ -17,7 +17,7 @@ export function useStorySubmit({ story, onSuccess, onReset }: UseStorySubmitProp
 
   return useMutation({
     mutationFn: async (values: StoryFormValues & { coverFile?: File | null }) => {
-      const { coverFile, ...storyData } = values;
+      const { coverFile, chapters, ...storyData } = values;
       let cover_url = story?.cover_url;
 
       if (coverFile) {
@@ -37,6 +37,8 @@ export function useStorySubmit({ story, onSuccess, onReset }: UseStorySubmitProp
         cover_url = publicUrl;
       }
 
+      let storyId = story?.id;
+
       if (isEditing) {
         const { error } = await supabase
           .from('stories')
@@ -44,10 +46,27 @@ export function useStorySubmit({ story, onSuccess, onReset }: UseStorySubmitProp
           .eq('id', story.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('stories')
-          .insert([{ ...storyData, cover_url }]);
+          .insert([{ ...storyData, cover_url }])
+          .select()
+          .single();
         if (error) throw error;
+        storyId = data.id;
+      }
+
+      // Handle chapters if they exist
+      if (chapters && chapters.length > 0 && storyId) {
+        const chaptersWithStoryId = chapters.map(chapter => ({
+          ...chapter,
+          story_id: storyId
+        }));
+
+        const { error: chaptersError } = await supabase
+          .from('chapters')
+          .insert(chaptersWithStoryId);
+
+        if (chaptersError) throw chaptersError;
       }
     },
     onSuccess: () => {
@@ -63,3 +82,4 @@ export function useStorySubmit({ story, onSuccess, onReset }: UseStorySubmitProp
     },
   });
 }
+
