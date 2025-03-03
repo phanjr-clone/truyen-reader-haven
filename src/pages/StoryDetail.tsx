@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -8,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const StoryDetail = () => {
   const { id } = useParams();
@@ -25,7 +25,27 @@ const StoryDetail = () => {
   });
 
   if (isLoadingStory || isLoadingChapters) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="container py-8">
+          <Button variant="ghost" asChild className="mb-4">
+            <Link to="/" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Stories
+            </Link>
+          </Button>
+          <div className="space-y-4">
+            <Skeleton className="h-12 w-3/4" />
+            <Skeleton className="h-6 w-1/4" />
+            <div className="space-y-6 mt-8">
+              <Skeleton className="h-48 w-full" />
+              <Skeleton className="h-48 w-full" />
+            </div>
+          </div>
+        </main>
+      </div>
+    );
   }
 
   if (!story) {
