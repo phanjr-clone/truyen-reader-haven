@@ -7,17 +7,24 @@ import Header from '@/components/Header';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Separator } from '@/components/ui/separator';
 
 const StoryDetail = () => {
   const { id } = useParams();
   
-  const { data: story, isLoading } = useQuery({
+  const { data: story, isLoading: isLoadingStory } = useQuery({
     queryKey: ['story', id],
     queryFn: () => storyService.getStoryById(id!),
     enabled: !!id,
   });
 
-  if (isLoading) {
+  const { data: chapters = [], isLoading: isLoadingChapters } = useQuery({
+    queryKey: ['chapters', id],
+    queryFn: () => storyService.getChaptersByStoryId(id!),
+    enabled: !!id,
+  });
+
+  if (isLoadingStory || isLoadingChapters) {
     return <div>Loading...</div>;
   }
 
@@ -35,10 +42,27 @@ const StoryDetail = () => {
             Back to Stories
           </Link>
         </Button>
-        <article className="prose prose-lg max-w-none">
+        <article className="prose prose-lg max-w-none dark:prose-invert">
           <h1 className="text-4xl font-bold mb-4">{story.title}</h1>
           <p className="text-muted-foreground mb-8">By {story.author}</p>
-          <div className="mt-4">{story.content}</div>
+          
+          {chapters.length > 0 ? (
+            <div className="space-y-6">
+              {chapters.map((chapter, index) => (
+                <div key={chapter.id} className="space-y-4">
+                  <h2 className="text-2xl font-semibold">
+                    Chapter {index + 1}: {chapter.title}
+                  </h2>
+                  <div className="mt-4">{chapter.content}</div>
+                  {index < chapters.length - 1 && (
+                    <Separator className="my-8" />
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-4">{story.content}</div>
+          )}
         </article>
       </main>
     </div>

@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 
 // These are public keys - it's safe to expose them
@@ -34,6 +33,15 @@ export interface User {
     email?: string;
     name?: string;
   };
+}
+
+export interface Chapter {
+  id: string;
+  story_id: string;
+  title: string;
+  content: string;
+  order: number;
+  created_at?: string;
 }
 
 export const storyService = {
@@ -85,6 +93,48 @@ export const storyService = {
     
     if (error) throw error;
     return data;
+  },
+
+  async createChapter(storyId: string, chapter: Partial<Chapter>) {
+    const { data, error } = await supabase
+      .from('chapters')
+      .insert([{ ...chapter, story_id: storyId }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getChaptersByStoryId(storyId: string) {
+    const { data, error } = await supabase
+      .from('chapters')
+      .select('*')
+      .eq('story_id', storyId)
+      .order('order', { ascending: true });
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateChapter(id: string, updates: Partial<Chapter>) {
+    const { data, error } = await supabase
+      .from('chapters')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteChapter(id: string) {
+    const { error } = await supabase
+      .from('chapters')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
   }
 };
-
