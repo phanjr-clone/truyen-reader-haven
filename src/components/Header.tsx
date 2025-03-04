@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpenText, ScrollText, Settings, LogOut, User } from 'lucide-react';
@@ -19,7 +18,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Header = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const { t } = useI18n();
 
   return (
@@ -60,7 +59,7 @@ const Header = () => {
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
-                  {user && (
+                  {isAdmin && (
                     <DropdownMenuItem>
                       <Link to="/admin" className="flex items-center">
                         <Settings className="mr-2 h-4 w-4" />

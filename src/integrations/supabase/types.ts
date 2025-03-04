@@ -80,18 +80,21 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          is_admin: boolean
           role: string
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           id: string
+          is_admin?: boolean
           role?: string
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
+          is_admin?: boolean
           role?: string
           updated_at?: string | null
         }
