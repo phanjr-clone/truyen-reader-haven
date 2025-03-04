@@ -5,6 +5,7 @@ import { storyFormSchema, type StoryFormValues } from "../schemas/story-schema";
 import type { Story } from "@/lib/supabase";
 import { useStoryImage } from "./useStoryImage";
 import { useStorySubmit } from "./useStorySubmit";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface UseStoryFormProps {
   story?: Story;
@@ -13,6 +14,8 @@ interface UseStoryFormProps {
 }
 
 export function useStoryForm({ story, initialChapters = [], onSuccess }: UseStoryFormProps) {
+  const queryClient = useQueryClient();
+
   const form = useForm<StoryFormValues>({
     resolver: zodResolver(storyFormSchema),
     defaultValues: {
@@ -48,6 +51,7 @@ export function useStoryForm({ story, initialChapters = [], onSuccess }: UseStor
       form.reset();
       setCoverFile(null);
       setCoverPreview('');
+      queryClient.invalidateQueries({ queryKey: ['stories'] });
     },
   });
 

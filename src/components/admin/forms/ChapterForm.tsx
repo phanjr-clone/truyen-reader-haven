@@ -1,20 +1,26 @@
-
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { UseFormReturn } from "react-hook-form";
+import { useFormContext, UseFormReturn } from "react-hook-form";
 import type { StoryFormValues } from "../schemas/story-schema";
 
 interface ChapterFormProps {
   index: number;
-  form: UseFormReturn<StoryFormValues>;
   onRemove: () => void;
 }
 
-export function ChapterForm({ index, form, onRemove }: ChapterFormProps) {
+export function ChapterForm({ index, onRemove }: ChapterFormProps) {
+  const form = useFormContext();
+
   return (
     <Card>
       <CardContent className="pt-6 space-y-4">
@@ -52,10 +58,10 @@ export function ChapterForm({ index, form, onRemove }: ChapterFormProps) {
             <FormItem>
               <FormLabel>Chapter Content</FormLabel>
               <FormControl>
-                <Textarea 
-                  placeholder="Write your chapter content here..." 
+                <Textarea
+                  placeholder="Write your chapter content here..."
                   className="min-h-[200px]"
-                  {...field} 
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
