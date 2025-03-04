@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "../components/Header";
@@ -13,16 +12,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const STORY_TYPES = ['All', 'Romance', 'Drama', 'Youth', 'Life', 'Adventure', 'Fantasy', 'Mystery'] as const;
+const STORY_TYPES = [
+  "All",
+  "Romance",
+  "Drama",
+  "Youth",
+  "Life",
+  "Adventure",
+  "Fantasy",
+  "Mystery",
+] as const;
 
 const Index = () => {
   const [selectedType, setSelectedType] = useState<string>("All");
 
   const { data: stories = [], isLoading } = useQuery({
-    queryKey: ['stories', selectedType],
-    queryFn: () => selectedType === 'All' 
-      ? storyService.getAllStories()
-      : storyService.getStoriesByType(selectedType as Story['type'])
+    queryKey: ["stories", selectedType],
+    queryFn: () =>
+      selectedType === "All"
+        ? storyService.getAllStories()
+        : storyService.getStoriesByType(selectedType as Story["type"]),
   });
 
   return (
@@ -50,7 +59,7 @@ const Index = () => {
               </SelectContent>
             </Select>
           </div>
-          
+
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {[...Array(8)].map((_, i) => (
@@ -64,12 +73,7 @@ const Index = () => {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {stories.length > 0 ? (
-                stories.map((story) => (
-                  <StoryCard 
-                    key={story.id} 
-                    {...story}
-                  />
-                ))
+                stories.map((story) => <StoryCard key={story.id} {...story} />)
               ) : (
                 <p>No stories found.</p>
               )}
