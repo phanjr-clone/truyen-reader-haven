@@ -43,6 +43,7 @@ export type Database = {
           content: string
           created_at: string | null
           id: string
+          image_url: string | null
           order: number
           story_id: string
           title: string
@@ -52,6 +53,7 @@ export type Database = {
           content: string
           created_at?: string | null
           id?: string
+          image_url?: string | null
           order: number
           story_id: string
           title: string
@@ -61,6 +63,7 @@ export type Database = {
           content?: string
           created_at?: string | null
           id?: string
+          image_url?: string | null
           order?: number
           story_id?: string
           title?: string

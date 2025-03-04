@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -10,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
+import { AspectRatio } from '@/components/ui/aspect-ratio';
 
 const StoryDetail = () => {
   const { id } = useParams();
@@ -114,9 +114,23 @@ const StoryDetail = () => {
                 </Button>
               </div>
             </div>
+
+            {currentChapter.image_url && (
+              <div className="my-6">
+                <AspectRatio ratio={16 / 9}>
+                  <img
+                    src={currentChapter.image_url}
+                    alt={`Chapter ${currentChapterIndex + 1} illustration`}
+                    className="rounded-lg object-cover w-full h-full"
+                  />
+                </AspectRatio>
+              </div>
+            )}
+
             <article className="prose prose-lg max-w-none dark:prose-invert">
               {currentChapter.content}
             </article>
+
             {currentChapterIndex < chapters.length - 1 && (
               <Separator className="my-8" />
             )}

@@ -1,3 +1,4 @@
+
 import {
   FormControl,
   FormField,
@@ -8,10 +9,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Image, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useFormContext, UseFormReturn } from "react-hook-form";
-import type { StoryFormValues } from "../schemas/story-schema";
+import { useFormContext } from "react-hook-form";
+import { useState } from "react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface ChapterFormProps {
   index: number;
@@ -20,6 +22,16 @@ interface ChapterFormProps {
 
 export function ChapterForm({ index, onRemove }: ChapterFormProps) {
   const form = useFormContext();
+  const [imagePreview, setImagePreview] = useState<string>('');
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const preview = URL.createObjectURL(file);
+      setImagePreview(preview);
+      form.setValue(`chapters.${index}.imageFile`, file);
+    }
+  };
 
   return (
     <Card>
@@ -63,6 +75,37 @@ export function ChapterForm({ index, onRemove }: ChapterFormProps) {
                   className="min-h-[200px]"
                   {...field}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name={`chapters.${index}.imageFile`}
+          render={({ field: { value, onChange, ...field } }) => (
+            <FormItem>
+              <FormLabel>Chapter Image (Optional)</FormLabel>
+              <FormControl>
+                <div className="space-y-4">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="cursor-pointer"
+                    {...field}
+                  />
+                  {imagePreview && (
+                    <AspectRatio ratio={16 / 9}>
+                      <img
+                        src={imagePreview}
+                        alt="Chapter preview"
+                        className="rounded-md object-cover w-full h-full"
+                      />
+                    </AspectRatio>
+                  )}
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
