@@ -11,6 +11,7 @@ import Admin from "./pages/Admin";
 import StoryDetail from "./pages/StoryDetail";
 import Bookmarks from "./pages/Bookmarks";
 import Popular from "./pages/Popular";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/popular" element={<Popular />} />
             <Route path="/bookmarks" element={<Bookmarks />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
