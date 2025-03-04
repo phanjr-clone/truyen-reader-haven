@@ -7,23 +7,16 @@ import { bookmarkService } from "@/lib/bookmarks";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardFooter } from "./ui/card";
 import { format } from "date-fns";
+import type { Story } from "@/lib/supabase";
 
-interface StoryCardProps {
-  id: string;
-  title: string;
-  author: string;
-  categories: string[];
-  cover?: string;
-  created_at?: string;
-  views?: number;
-}
+type StoryCardProps = Story;
 
 const StoryCard = ({
   id,
   title,
   author,
-  categories,
-  cover,
+  type,
+  cover_url,
   created_at,
   views,
 }: StoryCardProps) => {
@@ -89,9 +82,9 @@ const StoryCard = ({
     <Card className="group hover:shadow-lg transition-all duration-300 overflow-hidden">
       <Link to={`/story/${id}`}>
         <div className="aspect-[3/4] relative overflow-hidden">
-          {cover ? (
+          {cover_url ? (
             <img
-              src={cover}
+              src={cover_url}
               alt={title}
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
@@ -111,14 +104,9 @@ const StoryCard = ({
           <p className="text-sm text-muted-foreground">{author}</p>
         </Link>
         <div className="flex flex-wrap gap-2 mt-3">
-          {categories?.map((category) => (
-            <span
-              key={category}
-              className="text-xs bg-secondary/50 px-2 py-1 rounded-full"
-            >
-              {category}
-            </span>
-          ))}
+          <span className="text-xs bg-secondary/50 px-2 py-1 rounded-full">
+            {type}
+          </span>
         </div>
       </CardContent>
       <CardFooter className="px-4 py-3 border-t flex justify-between items-center bg-muted/50">
