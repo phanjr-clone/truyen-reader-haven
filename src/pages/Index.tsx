@@ -1,9 +1,10 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "../components/Header";
 import StoryCard from "../components/StoryCard";
 import { storyService, type Story } from "@/lib/supabase";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -50,24 +51,30 @@ const Index = () => {
             </Select>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {isLoading ? (
-              <p>Loading stories...</p>
-            ) : stories.length > 0 ? (
-              stories.map((story) => (
-                <StoryCard 
-                  key={story.id} 
-                  id={story.id}
-                  title={story.title}
-                  author={story.author}
-                  categories={[story.type]}
-                  cover={story.cover_url}
-                />
-              ))
-            ) : (
-              <p>No stories found.</p>
-            )}
-          </div>
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="space-y-3">
+                  <Skeleton className="h-[200px] w-full rounded-lg" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {stories.length > 0 ? (
+                stories.map((story) => (
+                  <StoryCard 
+                    key={story.id} 
+                    {...story}
+                  />
+                ))
+              ) : (
+                <p>No stories found.</p>
+              )}
+            </div>
+          )}
         </section>
       </main>
     </div>

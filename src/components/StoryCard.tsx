@@ -1,11 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Book, Bookmark, BookmarkMinus } from 'lucide-react';
+import { Book, Bookmark, BookmarkMinus, Clock } from 'lucide-react';
 import { Button } from './ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { bookmarkService } from '@/lib/bookmarks';
 import { useToast } from '@/hooks/use-toast';
+import { Card, CardContent, CardFooter } from './ui/card';
+import { format } from 'date-fns';
 
 interface StoryCardProps {
   id: string;
@@ -13,9 +15,11 @@ interface StoryCardProps {
   author: string;
   categories: string[];
   cover?: string;
+  created_at?: string;
+  views?: number;
 }
 
-const StoryCard = ({ id, title, author, categories, cover }: StoryCardProps) => {
+const StoryCard = ({ id, title, author, categories, cover, created_at, views }: StoryCardProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -73,47 +77,60 @@ const StoryCard = ({ id, title, author, categories, cover }: StoryCardProps) => 
   };
 
   return (
-    <div className="relative group">
-      <Link to={`/story/${id}`} className="block">
-        <div className="aspect-[3/4] mb-4 overflow-hidden rounded-md bg-muted">
+    <Card className="group hover:shadow-lg transition-all duration-300 overflow-hidden">
+      <Link to={`/story/${id}`}>
+        <div className="aspect-[3/4] relative overflow-hidden">
           {cover ? (
             <img
               src={cover}
               alt={title}
-              className="h-full w-full object-cover transition-transform hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
             />
           ) : (
-            <div className="flex h-full items-center justify-center">
+            <div className="flex h-full items-center justify-center bg-muted">
               <Book className="h-12 w-12 text-muted-foreground/50" />
             </div>
           )}
         </div>
-        <div className="space-y-2">
-          <h3 className="font-semibold leading-none tracking-tight">{title}</h3>
-          <p className="text-sm text-muted-foreground">{author}</p>
-          <div className="flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <span key={category} className="text-xs bg-secondary px-2 py-1 rounded-full">
-                {category}
-              </span>
-            ))}
-          </div>
-        </div>
       </Link>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-        onClick={handleBookmark}
-      >
-        {isBookmarked ? (
-          <BookmarkMinus className="h-4 w-4" />
-        ) : (
-          <Bookmark className="h-4 w-4" />
-        )}
-      </Button>
-    </div>
+      <CardContent className="p-4">
+        <Link to={`/story/${id}`}>
+          <h3 className="font-semibold leading-none tracking-tight mb-2 group-hover:text-primary transition-colors">
+            {title}
+          </h3>
+          <p className="text-sm text-muted-foreground">{author}</p>
+        </Link>
+        <div className="flex flex-wrap gap-2 mt-3">
+          {categories.map((category) => (
+            <span
+              key={category}
+              className="text-xs bg-secondary/50 px-2 py-1 rounded-full"
+            >
+              {category}
+            </span>
+          ))}
+        </div>
+      </CardContent>
+      <CardFooter className="px-4 py-3 border-t flex justify-between items-center bg-muted/50">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Clock className="h-4 w-4" />
+          {created_at ? format(new Date(created_at), 'MMM d, yyyy') : 'Recent'}
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={handleBookmark}
+        >
+          {isBookmarked ? (
+            <BookmarkMinus className="h-4 w-4" />
+          ) : (
+            <Bookmark className="h-4 w-4" />
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };
 
