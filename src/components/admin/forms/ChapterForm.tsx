@@ -1,4 +1,3 @@
-
 import {
   FormControl,
   FormField,
@@ -12,19 +11,27 @@ import { Button } from "@/components/ui/button";
 import { Image, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useFormContext } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { supabase } from "@/lib/supabase";
 
 interface ChapterFormProps {
   index: number;
   onRemove: () => void;
+  initialImageUrl?: string;
 }
 
-export function ChapterForm({ index, onRemove }: ChapterFormProps) {
+export function ChapterForm({ index, onRemove, initialImageUrl }: ChapterFormProps) {
   const form = useFormContext();
-  const [imagePreview, setImagePreview] = useState<string>('');
+  const [imagePreview, setImagePreview] = useState<string>(initialImageUrl || '');
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    if (initialImageUrl) {
+      setImagePreview(initialImageUrl);
+    }
+  }, [initialImageUrl]);
+
+  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const preview = URL.createObjectURL(file);
