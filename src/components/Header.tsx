@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { BookOpenText, ScrollText, Settings, LogOut, User } from 'lucide-react';
-import { Button } from './ui/button';
-import { LoginDialog } from './auth/LoginDialog';
-import { useAuth } from '@/contexts/AuthContext';
-import { ThemeToggle } from './ThemeToggle';
-import { LanguageToggle } from './LanguageToggle';
-import { useI18n } from '@/i18n/i18n';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { BookOpenText, ScrollText, Settings, LogOut, User } from "lucide-react";
+import { Button } from "./ui/button";
+import { LoginDialog } from "./auth/LoginDialog";
+import { useAuth } from "@/contexts/AuthContext";
+import { ThemeToggle } from "./ThemeToggle";
+import { LanguageToggle } from "./LanguageToggle";
+import { useI18n } from "@/i18n/i18n";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,14 +16,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Input } from './ui/input';
-import { useNavigate } from 'react-router-dom';
+import { Input } from "./ui/input";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const { user, signOut, isAdmin } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,25 +34,30 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center gap-4">
-        <Link to="/" className="flex items-center space-x-2">
-          <BookOpenText className="h-6 w-6 text-primary" />
-          <span className="text-xl font-semibold">TruyenHaven</span>
-        </Link>
-        
-        <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-4">
-          <Input
-            type="search"
-            placeholder={t('header.searchPlaceholder')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full"
-          />
-        </form>
+      <div className="container flex h-16 items-center justify-between">
+        <div className="flex h-16 items-center gap-4">
+          <Link to="/" className="flex items-center space-x-2">
+            <BookOpenText className="h-6 w-6 text-primary" />
+            <span className="text-xl font-semibold">TruyenHaven</span>
+          </Link>
+
+          <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-4">
+            <Input
+              type="search"
+              placeholder={t("header.searchPlaceholder")}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full"
+            />
+          </form>
+        </div>
 
         <nav className="flex items-center space-x-4">
-          <Link to="/popular" className="text-sm font-medium hover:text-primary transition-colors">
-            {t('nav.popular')}
+          <Link
+            to="/popular"
+            className="text-sm font-medium hover:text-primary transition-colors"
+          >
+            {t("nav.popular")}
           </Link>
           <ThemeToggle />
           <LanguageToggle />
@@ -65,11 +70,15 @@ const Header = () => {
               </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="relative h-8 w-8 rounded-full"
+                  >
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={user.user_metadata?.avatar_url} />
                       <AvatarFallback>
-                        {user.email?.[0]?.toUpperCase() || 'U'}
+                        {user.email?.[0]?.toUpperCase() || "U"}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
