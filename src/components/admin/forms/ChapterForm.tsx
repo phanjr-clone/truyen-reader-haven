@@ -14,6 +14,7 @@ import { useFormContext } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 interface ChapterFormProps {
   index: number;
@@ -28,15 +29,36 @@ export function ChapterForm({ index, onRemove, initialImageUrl }: ChapterFormPro
   useEffect(() => {
     if (initialImageUrl) {
       setImagePreview(initialImageUrl);
+      form.setValue(`chapters.${index}.imageUrl`, initialImageUrl);
     }
-  }, [initialImageUrl]);
+  }, [initialImageUrl, form, index]);
 
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const preview = URL.createObjectURL(file);
-      setImagePreview(preview);
-      form.setValue(`chapters.${index}.imageFile`, file);
+      try {
+        const fileExt = file.name.split('.').pop();
+        const filePath = `${crypto.randomUUID()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('chapter-images')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('chapter-images')
+          .getPublicUrl(filePath);
+
+        setImagePreview(publicUrl);
+        form.setValue(`chapters.${index}.imageUrl`, publicUrl);
+        form.setValue(`chapters.${index}.imageFile`, file);
+
+        toast.success('Image uploaded successfully');
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        toast.error('Failed to upload image');
+      }
     }
   };
 
@@ -90,7 +112,7 @@ export function ChapterForm({ index, onRemove, initialImageUrl }: ChapterFormPro
 
         <FormField
           control={form.control}
-          name={`chapters.${index}.imageFile`}
+          name={`chapters.${index}.imageUrl`}
           render={({ field: { value, onChange, ...field } }) => (
             <FormItem>
               <FormLabel>Chapter Image (Optional)</FormLabel>
