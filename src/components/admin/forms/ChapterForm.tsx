@@ -8,7 +8,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Image, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useFormContext } from "react-hook-form";
 import { useState, useEffect } from "react";
@@ -24,7 +24,7 @@ interface ChapterFormProps {
 
 export function ChapterForm({ index, onRemove, initialImageUrl }: ChapterFormProps) {
   const form = useFormContext();
-  const [imagePreview, setImagePreview] = useState<string>(initialImageUrl || '');
+  const [imagePreview, setImagePreview] = useState<string>('');
 
   useEffect(() => {
     if (initialImageUrl) {
@@ -40,9 +40,12 @@ export function ChapterForm({ index, onRemove, initialImageUrl }: ChapterFormPro
         const fileExt = file.name.split('.').pop();
         const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
-        const { error: uploadError } = await supabase.storage
+        const { error: uploadError, data } = await supabase.storage
           .from('chapter-images')
-          .upload(filePath, file);
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
 
         if (uploadError) throw uploadError;
 
@@ -115,7 +118,7 @@ export function ChapterForm({ index, onRemove, initialImageUrl }: ChapterFormPro
           name={`chapters.${index}.imageUrl`}
           render={({ field: { value, onChange, ...field } }) => (
             <FormItem>
-              <FormLabel>Chapter Image (Optional)</FormLabel>
+              <FormLabel>Chapter Image</FormLabel>
               <FormControl>
                 <div className="space-y-4">
                   <Input
