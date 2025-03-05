@@ -44,26 +44,26 @@ const AvatarUpload = () => {
 
       const file = event.target.files[0];
       const fileExt = file.name.split('.').pop();
-      const filePath = `${user?.id}/${Math.random()}.${fileExt}`;
+      const filePath = `${user?.id}-${Math.random()}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
+      let { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      const { data } = supabase.storage
+      const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ avatar_url: data.publicUrl })
+        .update({ avatar_url: publicUrl })
         .eq('id', user?.id);
 
       if (updateError) throw updateError;
 
-      setAvatarUrl(data.publicUrl);
+      setAvatarUrl(publicUrl);
       toast({
         title: "Success",
         description: "Avatar updated successfully",

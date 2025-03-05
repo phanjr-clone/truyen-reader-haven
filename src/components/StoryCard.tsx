@@ -117,7 +117,7 @@ const StoryCard = ({
         <Button
           variant="ghost"
           size="icon"
-          className="opacity-0 group-hover:opacity-100 transition-opacity"
+          className="transition-colors"
           onClick={handleBookmark}
         >
           {isBookmarked ? (

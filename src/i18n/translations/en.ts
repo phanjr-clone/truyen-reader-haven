@@ -1,4 +1,3 @@
-
 export default {
   common: {
     loading: "Loading...",
@@ -20,5 +19,26 @@ export default {
     home: "Home",
     popular: "Popular",
     bookmarks: "Bookmarks",
+  },
+  header: {
+    searchPlaceholder: "Search stories...",
+    backToHome: "Back to Home",
+  },
+  profile: {
+    title: "Profile Settings",
+    avatar: {
+      change: "Change Avatar",
+      uploading: "Uploading...",
+      success: "Avatar updated successfully",
+      error: "Error updating avatar",
+    },
+    form: {
+      displayName: "Display Name",
+      phone: "Phone Number",
+      save: "Save Changes",
+      saving: "Saving...",
+      success: "Profile updated successfully",
+      error: "Error updating profile",
+    },
   },
 };

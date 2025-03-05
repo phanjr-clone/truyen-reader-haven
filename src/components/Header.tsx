@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BookOpenText, ScrollText, Settings, LogOut, User } from 'lucide-react';
 import { Button } from './ui/button';
@@ -16,19 +16,41 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from './ui/input';
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const { user, signOut, isAdmin } = useAuth();
   const { t } = useI18n();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
+      <div className="container flex h-16 items-center gap-4">
         <Link to="/" className="flex items-center space-x-2">
           <BookOpenText className="h-6 w-6 text-primary" />
           <span className="text-xl font-semibold">TruyenHaven</span>
         </Link>
-        <nav className="ml-auto flex items-center space-x-4">
+        
+        <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-4">
+          <Input
+            type="search"
+            placeholder={t('header.searchPlaceholder')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full"
+          />
+        </form>
+
+        <nav className="flex items-center space-x-4">
           <Link to="/popular" className="text-sm font-medium hover:text-primary transition-colors">
             {t('nav.popular')}
           </Link>
@@ -82,6 +104,6 @@ const Header = () => {
       </div>
     </header>
   );
-}
+};
 
 export default Header;
