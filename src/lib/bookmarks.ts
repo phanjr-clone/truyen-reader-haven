@@ -2,6 +2,19 @@
 import { supabase } from './supabase';
 import type { Bookmark, Story } from './supabase';
 
+// Interface for the nested response from the bookmarks query
+interface BookmarkWithStory {
+  stories: {
+    id: string;
+    title: string;
+    author: string;
+    type: Story['type'];
+    views: number;
+    cover_url?: string;
+    created_at?: string;
+  }
+}
+
 export const bookmarkService = {
   async addBookmark(userId: string, storyId: string): Promise<Bookmark | null> {
     const { data, error } = await supabase
@@ -37,12 +50,14 @@ export const bookmarkService = {
           created_at
         )
       `)
-      .eq('user_id', userId);
+      .eq('user_id', userId)
+      .returns<BookmarkWithStory[]>();
     
     if (bookmarksError) throw bookmarksError;
     
     if (!bookmarks?.length) return [];
 
-    return bookmarks.map(bookmark => bookmark.stories as Story);
+    // Map the nested stories data to Story type
+    return bookmarks.map(bookmark => bookmark.stories) as Story[];
   },
 };
