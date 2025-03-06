@@ -25,21 +25,13 @@ export const bookmarkService = {
   async getBookmarkedStories(userId: string): Promise<Story[]> {
     const { data: bookmarks, error: bookmarksError } = await supabase
       .from('bookmarks')
-      .select('story_id')
+      .select('stories:story_id(*)')
       .eq('user_id', userId);
     
     if (bookmarksError) throw bookmarksError;
     
     if (!bookmarks?.length) return [];
 
-    const storyIds = bookmarks.map(bookmark => bookmark.story_id);
-    
-    const { data: stories, error: storiesError } = await supabase
-      .from('stories')
-      .select('*')
-      .in('id', storyIds);
-    
-    if (storiesError) throw storiesError;
-    return stories || [];
+    return bookmarks.map(bookmark => bookmark.stories) || [];
   },
 };

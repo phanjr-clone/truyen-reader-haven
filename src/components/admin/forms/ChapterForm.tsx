@@ -1,3 +1,4 @@
+
 import {
   FormControl,
   FormField,
@@ -25,6 +26,7 @@ interface ChapterFormProps {
 export function ChapterForm({ index, onRemove, initialImageUrl }: ChapterFormProps) {
   const form = useFormContext();
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     if (initialImageUrl) {
@@ -35,33 +37,39 @@ export function ChapterForm({ index, onRemove, initialImageUrl }: ChapterFormPro
 
   const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      try {
-        const fileExt = file.name.split('.').pop();
-        const filePath = `${crypto.randomUUID()}.${fileExt}`;
+    if (!file) return;
 
-        const { error: uploadError } = await supabase.storage
-          .from('chapter-images')
-          .upload(filePath, file, {
-            cacheControl: '3600',
-            upsert: false
-          });
+    try {
+      setIsUploading(true);
+      
+      // Create a unique file path
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
-        if (uploadError) throw uploadError;
+      // Upload the file
+      const { error: uploadError, data } = await supabase.storage
+        .from('chapter-images')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
-        const { data: { publicUrl } } = supabase.storage
-          .from('chapter-images')
-          .getPublicUrl(filePath);
+      if (uploadError) throw uploadError;
 
-        setImagePreview(publicUrl);
-        form.setValue(`chapters.${index}.imageUrl`, publicUrl);
-        form.setValue(`chapters.${index}.imageFile`, file);
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('chapter-images')
+        .getPublicUrl(filePath);
 
-        toast.success('Image uploaded successfully');
-      } catch (error) {
-        console.error('Error uploading image:', error);
-        toast.error('Failed to upload image');
-      }
+      setImagePreview(publicUrl);
+      form.setValue(`chapters.${index}.imageUrl`, publicUrl);
+
+      toast.success('Image uploaded successfully');
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -126,8 +134,14 @@ export function ChapterForm({ index, onRemove, initialImageUrl }: ChapterFormPro
                     accept="image/*"
                     onChange={handleImageChange}
                     className="cursor-pointer"
+                    disabled={isUploading}
                     {...field}
                   />
+                  {isUploading && (
+                    <div className="text-sm text-muted-foreground">
+                      Uploading...
+                    </div>
+                  )}
                   {imagePreview && (
                     <AspectRatio ratio={16 / 9}>
                       <img
