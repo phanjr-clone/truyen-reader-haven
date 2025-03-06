@@ -41,4 +41,16 @@ export default {
       error: "Lỗi cập nhật hồ sơ",
     },
   },
+  search: {
+    results: "Kết quả tìm kiếm cho",
+    noResults: "Không tìm thấy kết quả cho",
+  },
+  home: {
+    title: "Chào mừng đến TruyenHaven",
+    subtitle: "Khám phá những câu chuyện tuyệt vời",
+    featured: "Truyện Nổi Bật",
+    latest: "Truyện Mới Nhất",
+    popular: "Truyện Phổ Biến",
+    categories: "Thể Loại",
+  },
 };

@@ -41,4 +41,16 @@ export default {
       error: "Error updating profile",
     },
   },
+  search: {
+    results: "Search results for",
+    noResults: "No results found for",
+  },
+  home: {
+    title: "Welcome to TruyenHaven",
+    subtitle: "Discover amazing stories",
+    featured: "Featured Stories",
+    latest: "Latest Stories",
+    popular: "Popular Stories",
+    categories: "Categories",
+  },
 };

@@ -40,7 +40,7 @@ export function ChapterForm({ index, onRemove, initialImageUrl }: ChapterFormPro
         const fileExt = file.name.split('.').pop();
         const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
-        const { error: uploadError, data } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('chapter-images')
           .upload(filePath, file, {
             cacheControl: '3600',

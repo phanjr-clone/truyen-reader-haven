@@ -136,5 +136,16 @@ export const storyService = {
       .eq('id', id);
 
     if (error) throw error;
-  }
+  },
+
+  async searchStories(query: string) {
+    const { data, error } = await supabase
+      .from('stories')
+      .select('*')
+      .or(`title.ilike.%${query}%,author.ilike.%${query}%,content.ilike.%${query}%`)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data;
+  },
 };
