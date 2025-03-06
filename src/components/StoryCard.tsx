@@ -31,7 +31,7 @@ const StoryCard = ({
           const bookmarkedStories = await bookmarkService.getBookmarkedStories(
             user.id
           );
-          setIsBookmarked(bookmarkedStories.includes(id));
+          setIsBookmarked(bookmarkedStories.some(story => story.id === id));
         } catch (error) {
           console.error("Error checking bookmark:", error);
         }

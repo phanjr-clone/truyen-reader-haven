@@ -1,3 +1,4 @@
+
 import { supabase } from './supabase';
 import type { Bookmark, Story } from './supabase';
 
@@ -25,13 +26,23 @@ export const bookmarkService = {
   async getBookmarkedStories(userId: string): Promise<Story[]> {
     const { data: bookmarks, error: bookmarksError } = await supabase
       .from('bookmarks')
-      .select('stories:story_id(*)')
+      .select(`
+        stories:story_id (
+          id,
+          title,
+          author,
+          type,
+          views,
+          cover_url,
+          created_at
+        )
+      `)
       .eq('user_id', userId);
     
     if (bookmarksError) throw bookmarksError;
     
     if (!bookmarks?.length) return [];
 
-    return bookmarks.map(bookmark => bookmark.stories) || [];
+    return bookmarks.map(bookmark => bookmark.stories as Story);
   },
 };
