@@ -1,4 +1,3 @@
-
 import {
   FormControl,
   FormField,
@@ -42,12 +41,12 @@ export function ChapterForm({ index, onRemove, initialImageUrl }: ChapterFormPro
     try {
       setIsUploading(true);
       
-      // Create a unique file path
+      // Create a unique file path with file extension
       const fileExt = file.name.split('.').pop();
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
 
-      // Upload the file
-      const { error: uploadError, data } = await supabase.storage
+      // Upload the file to the chapter-images bucket
+      const { error: uploadError } = await supabase.storage
         .from('chapter-images')
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -56,14 +55,13 @@ export function ChapterForm({ index, onRemove, initialImageUrl }: ChapterFormPro
 
       if (uploadError) throw uploadError;
 
-      // Get the public URL
+      // Get the public URL from the chapter-images bucket
       const { data: { publicUrl } } = supabase.storage
         .from('chapter-images')
         .getPublicUrl(filePath);
 
       setImagePreview(publicUrl);
       form.setValue(`chapters.${index}.imageUrl`, publicUrl);
-
       toast.success('Image uploaded successfully');
     } catch (error: any) {
       console.error('Error uploading image:', error);
