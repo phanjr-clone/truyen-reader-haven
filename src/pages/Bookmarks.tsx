@@ -33,9 +33,13 @@ const Bookmarks = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {bookmarkedStories.map((story) => (
-              <StoryCard key={story.id} {...story} />
-            ))}
+            {bookmarkedStories.length === 0 ? (
+              <p className="col-span-full text-center text-muted-foreground">No bookmarked stories yet.</p>
+            ) : (
+              bookmarkedStories.map((story) => (
+                <StoryCard key={story.id} {...story} />
+              ))
+            )}
           </div>
         )}
       </main>
