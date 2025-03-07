@@ -5,6 +5,7 @@ const chapterSchema = z.object({
   title: z.string().min(2).max(100),
   content: z.string(),
   order: z.number(),
+  imageUrl: z.string().optional(),
 });
 
 export const storyFormSchema = z.object({

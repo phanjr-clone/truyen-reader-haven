@@ -42,6 +42,7 @@ export interface Chapter {
   content: string;
   order: number;
   created_at?: string;
+  image_url?: string;
 }
 
 export const storyService = {

@@ -151,6 +151,7 @@ export function StoryForm({
                 key={field.id}
                 index={index}
                 onRemove={() => remove(index)}
+                initialImageUrl={field.imageUrl}
               />
             ))}
 

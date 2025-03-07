@@ -27,6 +27,7 @@ export function useStoryForm({ story, initialChapters = [], onSuccess }: UseStor
         title: chapter.title,
         content: chapter.content,
         order: chapter.order,
+        imageUrl: chapter.image_url,
       })) || [],
     },
   });
